@@ -21,6 +21,8 @@ For my own testing on localhost, I manually created a user through drush via
 $ drush ucrt aaa --password=aaa
 ```
 
+Then log in as that new user
 
+!['New user log in'](img/login_as_that_new_user.png "Logging in as new user")
 
 
