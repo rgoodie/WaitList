@@ -27,7 +27,7 @@ Then log in as that new user:
 
 
 Return to the browser in which you've logged in as an administrator:
-!['People listing'](img/notice_user_roles.png) "Notice User Roles"
+!['People listing'](img/notice_user_roles.png "Notice User Roles")
 
 
 To following along the process, tail the WatchDog log:

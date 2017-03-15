@@ -170,7 +170,7 @@ class WaitList
         $role = user_role_load_by_name($role);
         user_multiple_role_edit(array($user->uid), 'add_role', $role->rid);
 
-        
+
     }
 }
 
