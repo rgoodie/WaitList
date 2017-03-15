@@ -1,13 +1,26 @@
 User Waitlist
 =============
+What
+-
+A Wait List that will insert a user into predefined roles upon account creation. Good to use in situations with SSO or LDAP. Upon account creation, roles will be automatically added to the user. 
 
+Why
+-
+I have a situation where a client uses a centralized management system for logins (OpenAM). They heavily use roles in their applications and need users immediately added to Roles on their first login. 
 
+How
+-
+An individual with permission, adds user names to a wait list. Drupal then watches for when these names first login (typically after LDAP or OpenAM creates the account). Once the user is added to those Roles, the wait list entry is removed. 
+
+Where
+-
+To see what's going on, look at the database table `waitlist` and tail watchdog `drush wd-show --tail`.
 
 
 
 
 How to use
--
+=
 First go to the administration page as such.
 
 ![Adding Names](img/adding_names.png "Adding names")
