@@ -29,45 +29,7 @@ class WaitList
     }
 
     /**
-     * Returns all roles for a single wait-listed username
-     * @param $username
-     * @return bool
-     */
-    static function getRolesforUserOnWaitList($username)
-    {
-        $roles_array = db_query("select distinct role from {waitlist} where username=:u", [':u' => $username])->fetchCol(0);
-
-        // if empty return false
-        if (empty($roles_array)) {
-            return false;
-        }
-
-        return $roles_array;
-
-    }
-
-    /**
-     * Returns of array of all Roles. It omits the anonymous and authenticated roles preset in Drupal.
-     * @return array
-     */
-    static function getAddedUserRoles() {
-        $out_roles = array();
-
-        foreach (user_roles() as $role) {
-            // skip standard drupal roles.
-            $role = trim($role);
-            if (array_search($role, ['anonymous user', 'authenticated user']) !== FALSE) {
-                continue;
-            }
-
-            $out_roles[] = $role;
-        }
-
-        return $out_roles;
-    }
-
-    /**
-     * Adds username into the waitlist table. 
+     * Adds username into the waitlist table.
      */
     static function moveNamesIntoWaitList()
     {
@@ -85,9 +47,7 @@ class WaitList
                 continue;
             }
 
-
-            watchdog('waitlist', print_r($var_contents, TRUE));
-
+            // watchdog('waitlist', print_r($var_contents, TRUE));
 
             // put each user into list
             foreach ($var_contents as $username) {
@@ -99,17 +59,39 @@ class WaitList
         }
     }
 
-    static function insertRecord($username, $role) {
+    /**
+     * Returns of array of all Roles. It omits the anonymous and authenticated roles preset in Drupal.
+     * @return array
+     */
+    static function getAddedUserRoles()
+    {
+        $out_roles = array();
+
+        foreach (user_roles() as $role) {
+            // skip standard drupal roles.
+            $role = trim($role);
+            if (array_search($role, ['anonymous user', 'authenticated user', 'administrator']) !== FALSE) {
+                continue;
+            }
+
+            $out_roles[] = $role;
+        }
+
+        return $out_roles;
+    }
+
+    static function insertRecord($username, $role)
+    {
 
         $username = trim(filter_var($username, FILTER_SANITIZE_STRING));
         $role = trim(filter_var($role, FILTER_SANITIZE_STRING));
 
         // Does this already exist
-        $count  = db_query(
+        $count = db_query(
             "select count( username) from waitlist where role=:role and username=:user;", [
-                ':role'=>$role,
-                ':user'=>$username
-            ])->fetchField(0);
+            ':role' => $role,
+            ':user' => $username
+        ])->fetchField(0);
 
 
         if ($count > 0) {
@@ -140,8 +122,8 @@ class WaitList
         }
     }
 
-
-    static function deleteRequest($username) {
+    static function deleteRequest($username)
+    {
 
         $username = filter_var($username, FILTER_SANITIZE_STRING);
         $roles = implode(', ', self::getRolesforUserOnWaitList($username));
@@ -160,8 +142,42 @@ class WaitList
 
         watchdog('waitlist', $msg);
         dpm($msg);
-        return drupal_goto();
 
+
+    }
+
+    /**
+     * Returns all roles for a single wait-listed username
+     * @param $username
+     * @return bool
+     */
+    static function getRolesforUserOnWaitList($username)
+    {
+        $roles_array = db_query("select distinct role from {waitlist} where username=:u", [':u' => $username])->fetchCol(0);
+
+        // if empty return false
+        if (empty($roles_array)) {
+            return false;
+        }
+
+        return $roles_array;
+
+    }
+
+    static function addRoleToExistingAccount($user_uid, $role)
+    {
+        $u = module_invoke('user', 'load', $user_uid);
+        $user_roles = $u->roles;
+        $user_roles[] = 'newrole';
+        module_invoke('user', 'save', $u, [
+            'roles' => $user_roles
+        ]);
+
+        watchdog('waitlist', t("@role has been attached to @user (@uid)", [
+            '@role' => $role,
+            '@user' => $u->name,
+            '@uid' => $u->uid,
+        ]));
     }
 }
 

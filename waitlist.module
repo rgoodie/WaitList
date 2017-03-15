@@ -10,10 +10,36 @@
  */
 function waitlist_user_login(&$edit, $account)
 {
-    // If the user has a NULL time zone, notify them to set a time zone.
-    if (!$account->timezone && variable_get('configurable_timezones', 1) && variable_get('empty_timezone_message', 0)) {
-        drupal_set_message(t('Configure your <a href="@user-edit">account time zone setting</a>.', array('@user-edit' => url("user/$account->uid/edit", array('query' => drupal_get_destination(), 'fragment' => 'edit-timezone')))));
+    global $user;
+    watchdog('waitlist', $user->name);
+
+    // Are there any roles on this users wait list?
+    $roles = WaitList::getRolesforUserOnWaitList($user->name);
+
+    // No roles.
+    if ($roles == FALSE) {
+        watchdog('waitlist', t("No roles waiting for this user @u", [
+            '@u' => $user->name
+        ]));
     }
+
+    // Not false. Let's give this a try.
+    else {
+        watchdog('waitlist', t("@u is wait-listed to @r", [
+            '@u' => $user->name,
+            '@r' => implode(", ", $roles)
+        ]));
+
+        // Run loop to add each role
+        foreach ($roles as $role) {
+            WaitList::addRoleToExistingAccount($user->uid, $role);
+        }
+
+        // remove request from wait list
+        WaitList::deleteRequest($user->name);
+
+    }
+
 }
 
 /**
@@ -103,8 +129,8 @@ function waitlist_delete_request_form($form, &$form_state, $username)
         watchdog('waitlist', $msg);
         drupal_set_message($msg);
         $form[] = ['#markup' => t("<h2>@t</h2> <p>Please return to !l</p>", [
-            '@t'=>ucfirst($msg),
-            '!l'=>l('admin page', 'admin/people/permissions/waitlist')
+            '@t' => ucfirst($msg),
+            '!l' => l('admin page', 'admin/people/permissions/waitlist')
         ])];
         return $form;
     }
@@ -143,5 +169,6 @@ function waitlist_delete_request_form_submit($form, &$form_state)
 {
     $username = filter_var($form_state['values']['username'], FILTER_SANITIZE_STRING);
     WaitList::deleteRequest($username);
+    return drupal_goto('admin/people/permissions/waitlist');
 
 }
