@@ -168,7 +168,7 @@ class WaitList
     {
         $u = module_invoke('user', 'load', $user_uid);
         $user_roles = $u->roles;
-        $user_roles[] = 'newrole';
+        $user_roles[] = $role;
         module_invoke('user', 'save', $u, [
             'roles' => $user_roles
         ]);
