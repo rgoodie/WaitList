@@ -1,0 +1,8 @@
+name = User Waitlist
+description = Reserves a user name. When that account is created (via SSO, LDAP, or via an admin), it is automatically placed into redefined roles.
+package = SoC
+core = 7.x
+
+files[] = WaitList.class.inc
+
+configure = admin/config/TODO-SECTION/waitlist

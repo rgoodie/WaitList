@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * @file
+ * TODO: Enter file description here.
+ */
+
+/**
+ * Implements hook_user_login().
+ */
+function waitlist_user_login(&$edit, $account)
+{
+    // If the user has a NULL time zone, notify them to set a time zone.
+    if (!$account->timezone && variable_get('configurable_timezones', 1) && variable_get('empty_timezone_message', 0)) {
+        drupal_set_message(t('Configure your <a href="@user-edit">account time zone setting</a>.', array('@user-edit' => url("user/$account->uid/edit", array('query' => drupal_get_destination(), 'fragment' => 'edit-timezone')))));
+    }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function waitlist_menu()
+{
+    $items = array();
+    $items['admin/people/permissions/waitlist'] = array(
+        'title' => t('Wait List'),
+        'description' => 'Configure settings for User Waitlist.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('waitlist_settings_form'),
+        'access arguments' => array('administer waitlist'),
+        'file' => 'waitlist.admin.inc',
+        'type' => MENU_LOCAL_TASK,
+    );
+
+    $items['admin/people/permissions/waitlist/%'] = array(
+        'title' => 'Delete item',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('waitlist_delete_request_form', 4),
+        'access arguments' => array('administer waitlist'),
+        'type' => MENU_CALLBACK,
+    );
+
+
+    return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function waitlist_permission()
+{
+    $permissions = array();
+
+    $permissions['waitlist_seelist,'] = array(
+        'title' => t('TODO: enter permission title'),
+        'description' => t('TODO: enter permission description'),
+    );
+    $permissions['waitlist_addtolist'] = array(
+        'title' => t('TODO: enter permission title'),
+        'description' => t('TODO: enter permission description'),
+    );
+    $permissions['administer waitlist'] = array(
+        'title' => t('TODO: enter permission title'),
+        'description' => t('TODO: enter permission description'),
+    );
+
+    return $permissions;
+}
+
+
+/**
+ * Implements hook_cron().
+ * To save space, this is a wrapper for the separate internal class.
+ */
+function waitlist_cron()
+{
+    WaitList::moveNamesIntoWaitList();
+
+}
+
+
+/**
+ * Form asking for delete confirmation
+ * @param $form
+ * @param $form_state
+ * @param $the_id
+ * @return array|mixed
+ */
+function waitlist_delete_request_form($form, &$form_state, $username)
+{
+
+    // kpr($form);
+    // kpr($form_state);
+
+
+    $username = filter_var($username, FILTER_SANITIZE_STRING);
+
+    $requested_roles = WaitList::getRolesforUserOnWaitList($username);
+
+    // Catch empty request
+    if (empty($requested_roles[0])) {
+        $msg = t("@u does not seem to have any (new) requests pending", ['@u' => $username]);
+        watchdog('waitlist', $msg);
+        drupal_set_message($msg);
+        $form[] = ['#markup' => t("<h2>@t</h2> <p>Please return to !l</p>", [
+            '@t'=>ucfirst($msg),
+            '!l'=>l('admin page', 'admin/people/permissions/waitlist')
+        ])];
+        return $form;
+    }
+
+
+    $form = array();
+    $form[] = ['#markup' => theme_item_list([
+        'title' => t(sprintf("The request to remove <em>%s</em> from the following groups:", $username)),
+        'items' => $requested_roles,
+        'type' => 'ul',
+        'attributes' => []
+    ])];
+    $form['username'] = array(
+        '#type' => 'value',
+        '#value' => $username,
+    );
+    $form['#submit'] = ['waitlist_delete_request_form_submit'];
+
+    return confirm_form(
+        $form,
+        t('Are you sure you want to delete this item?'),
+        '/admin/people/permissions/waitlist',
+        t('This action cannot be undone.'),
+        t('Delete'),
+        t('Cancel')
+    );
+
+
+}
+
+/**
+ * submit handler for delete request form's confirm_form()
+ *
+ */
+function waitlist_delete_request_form_submit($form, &$form_state)
+{
+    $username = filter_var($form_state['values']['username'], FILTER_SANITIZE_STRING);
+    WaitList::deleteRequest($username);
+
+}
