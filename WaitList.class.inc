@@ -2,13 +2,13 @@
 
 /**
  * Created by PhpStorm.
- * User: carbon
- * Date: 3/14/17
- * Time: 4:13 PM
+ * Helper class that does the heavy lifting. Lots of static classes helps separate out
+ * layers of processing.
  */
 class WaitList
 {
     /**
+     * Gets sorted, unique usernames currently in the waitlist table
      * @return array|bool|DatabaseStatementInterface
      */
     static function getUniqueIndividualUsers()
@@ -28,7 +28,11 @@ class WaitList
 
     }
 
-
+    /**
+     * Returns all roles for a single wait-listed username
+     * @param $username
+     * @return bool
+     */
     static function getRolesforUserOnWaitList($username)
     {
         $roles_array = db_query("select distinct role from {waitlist} where username=:u", [':u' => $username])->fetchCol(0);
@@ -42,6 +46,10 @@ class WaitList
 
     }
 
+    /**
+     * Returns of array of all Roles. It omits the anonymous and authenticated roles preset in Drupal.
+     * @return array
+     */
     static function getAddedUserRoles() {
         $out_roles = array();
 
@@ -58,6 +66,9 @@ class WaitList
         return $out_roles;
     }
 
+    /**
+     * Adds username into the waitlist table. 
+     */
     static function moveNamesIntoWaitList()
     {
 
