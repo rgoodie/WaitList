@@ -21,7 +21,7 @@ To see what's going on, look at the database table `waitlist` and tail watchdog 
 
 How to use
 =
-First go to the administration page as such.
+Install and activate the module. First go to the administration page as such.
 
 ![Adding Names](img/adding_names.png "Adding names")
 
