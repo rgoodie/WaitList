@@ -14,22 +14,22 @@ function waitlist_settings_form($form, &$form_state)
     // Run wait list
     WaitList::moveNamesIntoWaitList();
 
-    $form[] = [
+    $form[] = array(
         '#markup' => t("<h2>Add people to waitlist</h2>"),
-    ];
+    );
 
     foreach (WaitList::getAddedUserRoles() as $role) {
 
 
         $role_with_underscore = str_replace(' ', '_', $role);
 
-        $form['waitlist_for_' . $role_with_underscore] = [
+        $form['waitlist_for_' . $role_with_underscore] = array(
             '#type' => 'textarea',
             '#title' => t(ucwords($role)),
             '#description' => t("One username per line"),
             '#rows' => 3,
             '#default_value' => variable_get('waitlist_for_' . $role_with_underscore, '')
-        ];
+        );
 
     }
 
@@ -40,12 +40,12 @@ function waitlist_settings_form($form, &$form_state)
 
     if (!empty($individual_usernames)) {
 
-        $form[] = ['#markup' => t(
+        $form[] = array('#markup' => t(
             "<h2>People to be added on their next login or initial account creation</h2> "
-        )];
+        ));
         foreach ($individual_usernames as $username) {
             $form[] = array(
-                '#markup' => theme_item_list([
+                '#markup' => theme_item_list(array(
                     'title' => sprintf(
                         "%s [ %s ]",
                         $username ,
@@ -53,8 +53,8 @@ function waitlist_settings_form($form, &$form_state)
                     ),
                     'items' => WaitList::getRolesforUserOnWaitList($username),
                     'type' => 'ul',
-                    'attributes' => []
-                ])
+                    'attributes' => array()
+                ))
             );
         }
 
