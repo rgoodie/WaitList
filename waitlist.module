@@ -125,7 +125,7 @@ function waitlist_delete_request_form($form, &$form_state, $username)
 
     // Catch empty request
     if (empty($requested_roles[0])) {
-        $msg = t("@u does not seem to have any (new) requests pending", ['@u' => $username]);
+        $msg = t("@u does not seem to have any (new) requests pending", array('@u' => $username));
         watchdog('waitlist', $msg);
         drupal_set_message($msg);
         $form[] = array('#markup' => t("<h2>@t</h2> <p>Please return to !l</p>", array(
