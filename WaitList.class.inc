@@ -70,7 +70,7 @@ class WaitList
         foreach (user_roles() as $role) {
             // skip standard drupal roles.
             $role = trim($role);
-            if (array_search($role, ['anonymous user', 'authenticated user', 'administrator']) !== FALSE) {
+            if (array_search($role, array('anonymous user', 'authenticated user', 'administrator')) !== FALSE) {
                 continue;
             }
 
@@ -88,10 +88,10 @@ class WaitList
 
         // Does this already exist
         $count = db_query(
-            "select count( username) from waitlist where role=:role and username=:user;", [
+            "select count( username) from waitlist where role=:role and username=:user;", array(
             ':role' => $role,
             ':user' => $username
-        ])->fetchField(0);
+        ))->fetchField(0);
 
 
         if ($count > 0) {
@@ -153,7 +153,7 @@ class WaitList
      */
     static function getRolesforUserOnWaitList($username)
     {
-        $roles_array = db_query("select distinct role from {waitlist} where username=:u", [':u' => $username])->fetchCol(0);
+        $roles_array = db_query("select distinct role from {waitlist} where username=:u", array(':u' => $username))->fetchCol(0);
 
         // if empty return false
         if (empty($roles_array)) {
