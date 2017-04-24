@@ -18,17 +18,17 @@ function waitlist_user_login(&$edit, $account)
 
     // No roles.
     if ($roles == FALSE) {
-        watchdog('waitlist', t("No roles waiting for this user @u", [
+        watchdog('waitlist', t("No roles waiting for this user @u", array(
             '@u' => $user->name
-        ]));
+        )));
     }
 
     // Not false. Let's give this a try.
     else {
-        watchdog('waitlist', t("@u is wait-listed to @r", [
+        watchdog('waitlist', t("@u is wait-listed to @r", array(
             '@u' => $user->name,
             '@r' => implode(", ", $roles)
-        ]));
+        )));
 
         // Run loop to add each role
         foreach ($roles as $role) {
@@ -128,26 +128,26 @@ function waitlist_delete_request_form($form, &$form_state, $username)
         $msg = t("@u does not seem to have any (new) requests pending", ['@u' => $username]);
         watchdog('waitlist', $msg);
         drupal_set_message($msg);
-        $form[] = ['#markup' => t("<h2>@t</h2> <p>Please return to !l</p>", [
+        $form[] = array('#markup' => t("<h2>@t</h2> <p>Please return to !l</p>", array(
             '@t' => ucfirst($msg),
             '!l' => l('admin page', 'admin/people/permissions/waitlist')
-        ])];
+        )));
         return $form;
     }
 
 
     $form = array();
-    $form[] = ['#markup' => theme_item_list([
+    $form[] = array('#markup' => theme_item_list(array(
         'title' => t(sprintf("The request to remove <em>%s</em> from the following groups:", $username)),
         'items' => $requested_roles,
         'type' => 'ul',
-        'attributes' => []
-    ])];
+        'attributes' => array()
+    )));
     $form['username'] = array(
         '#type' => 'value',
         '#value' => $username,
     );
-    $form['#submit'] = ['waitlist_delete_request_form_submit'];
+    $form['#submit'] = array('waitlist_delete_request_form_submit');
 
     return confirm_form(
         $form,
