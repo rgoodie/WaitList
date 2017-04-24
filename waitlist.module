@@ -78,15 +78,15 @@ function waitlist_permission()
     $permissions = array();
 
     $permissions['waitlist_seelist,'] = array(
-        'title' => t('TODO: enter permission title'),
+        'title' => t('See List'),
         'description' => t('TODO: enter permission description'),
     );
     $permissions['waitlist_addtolist'] = array(
-        'title' => t('TODO: enter permission title'),
+        'title' => t('Add to List'),
         'description' => t('TODO: enter permission description'),
     );
     $permissions['administer waitlist'] = array(
-        'title' => t('TODO: enter permission title'),
+        'title' => t('Admin List'),
         'description' => t('TODO: enter permission description'),
     );
 
